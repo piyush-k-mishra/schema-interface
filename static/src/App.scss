@@ -1,0 +1,37 @@
+.App {
+    font-family: Arial, Helvetica, sans-serif;
+    height: max-content;
+}
+
+.Header {
+    display: inline-flex;
+    background-color: #000;
+    height: max-content;
+    width: max-content;
+    text-align: center;
+
+    #logo {
+        height:15vh;
+    }
+
+    #title {
+        color: #ddd;
+    }
+
+    .nav-items{
+        text-align: center;
+    }
+
+    a{
+        color: white;
+    }
+}
+
+.Body {
+    height: 85vh;
+    width: 100vw;
+}
+
+.row {
+    width: inherit;
+}
