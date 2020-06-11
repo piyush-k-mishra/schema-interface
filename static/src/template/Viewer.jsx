@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Container } from 'reactstrap';
 
 import UploadModal from './UploadModal';
 import Canvas from './Canvas';
@@ -27,7 +26,7 @@ class Viewer extends Component {
         }
         return (
             <div>
-                <UploadModal buttonLabel="Click Me!!!" parentCallback={this.callbackFunction}/>
+                <UploadModal buttonLabel="Upload Schema" parentCallback={this.callbackFunction}/>
                 {canvas}
             </div>
         )

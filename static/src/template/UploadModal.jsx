@@ -127,17 +127,21 @@ class UploadModal extends Component {
 
     return (
       <div>
-        <Button id="btn-modal" color="primary" onClick={openModal}>{this.props.buttonLabel}</Button>
+        <div style={{'display': 'flex', 'justifyContent': 'center'}}>
+          <Button id="btn-modal" color="primary" onClick={openModal}>
+            {this.props.buttonLabel}
+          </Button>
+        </div>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
           <ModalHeader toggle={this.toggle}>Upload Schema</ModalHeader>
 
           <ModalBody>
-            <div class="form-group files">
+            <div className="form-group files">
               <label>Upload Your File</label>
-              <input type="file" class="form-control" onChange={this.onChangeHandler} />
+              <input type="file" className="form-control" onChange={this.onChangeHandler} />
             </div>
 
-            <div class="form-group">
+            <div className="form-group">
               <ToastContainer closeButton={false} />
               <Progress max="100" color="success" value={this.state.loaded} >{Math.round(this.state.loaded, 2)}%</Progress>
             </div>
