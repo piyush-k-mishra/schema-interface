@@ -1,0 +1,63 @@
+{
+    "stylesheet": [
+        {
+            "selector": "node",
+            "style": {
+                "content": "data(label)",
+                "shape": "data(type)",
+                "width": "90vw",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "10vh",
+                "font-weight": "bold",
+                "text-wrap": "wrap",
+                "text-overflow-wrap": "whitespace",
+                "text-max-width": "80vw",
+                "background-color": "white",
+                "border-color": "black",
+                "border-width": "1px",
+                "border-style": "dotted"
+            }
+        },
+        {
+            "selector": "node:selected",
+            "style": {
+                "background-color": "gray"
+            }
+        },
+        {
+            "selector": ":parent",
+            "style": {
+                "text-valign": "top",
+                "text-halign": "center"
+            }
+        },
+        {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle",
+                "line-style": "solid"
+            }
+        },
+        {
+            "selector": ".root-edge",
+            "style": {
+                "line-color": "#f00"
+            }
+        }
+    ],
+    "layout": {
+        "name": "breadthfirst",
+        "fit": true,
+        "directed": true,
+        "padding": 10,
+        "circle": false,
+        "grid": false,
+        "spacingFactor": 0.75,
+        "avoidOverlap": true,
+        "nodeDimensionsIncludeLabels": true,
+        "roots": "#root",
+        "maximal": true
+    }
+}
