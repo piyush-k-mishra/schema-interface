@@ -1,9 +1,8 @@
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
-import RefreshIcon from '@material-ui/icons/Refresh'
 
 import Background from '../public/canvas_bg.png'
-import CyStyle from './cy-style.json'
+import CyStyle from '../public/cy-style.json'
 
 class Canvas extends React.Component {
     constructor(props) {
@@ -12,12 +11,12 @@ class Canvas extends React.Component {
             canvasElements: CytoscapeComponent.normalizeElements(this.props.elements)
         }
 
-        this.showDrawer = this.showDrawer.bind(this)
+        this.showSidebar = this.showSidebar.bind(this)
         this.showSubTree = this.showSubTree.bind(this)
     }
 
-    showDrawer(data) {
-        console.log('Render Drawer for' + JSON.stringify(data))
+    showSidebar(data) {
+        this.props.sidebarCallback(data);
     }
 
     showSubTree(node) {
@@ -26,40 +25,34 @@ class Canvas extends React.Component {
 
     componentDidMount() {
         this.cy.ready(() => {
-            this.cy.on('cxttap', event => {
-                if (event.target.cy) {
-                    this.showSubTree(event.target.data())
-                }
+            this.cy.on('cxttap', 'node', event => {
+                this.showSubTree(event.target.data())
             })
 
             this.cy.on('tap', event => {
-                if (event.target.cy) {
-                    this.showDrawer(event.target.data())
-                }
+                this.props.sidebarCallback(event.target.data())
             })
         })
     }
 
     render() {
         const style = {
-            width: '90vw', 
+            width: 'inherit', 
             height: '75vh',
             borderStyle: 'solid',
             backgroundImage: `url(${"/static" + Background})`
         };
 
         return (
-            <div style={{margin: '2vh 5vw 0 5vw', 'display': 'inline-flex'}}>
+            <div className={this.props.className} style={{marginTop: '2vh', width: 'inherit'}}>
                 <CytoscapeComponent
                     elements={this.state.canvasElements}
                     layout={CyStyle.layout}
                     style={style}
                     stylesheet={CyStyle.stylesheet}
                     cy={(cy) => { this.cy = cy }}
+                    maxZoom={4} minZoom={0.5}
                 />
-                <div style={{'width': '0', height: '3vh'}}>
-                    <RefreshIcon color="action" fontSize='large'/>
-                </div>
             </div>
         );
     }

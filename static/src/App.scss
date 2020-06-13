@@ -35,3 +35,31 @@
 .row {
     width: inherit;
 }
+
+.canvas-shrunk {
+    margin-left: 2vw;
+    width: 75vw !important;
+}
+
+.canvas-wide {
+    margin-left: 10vw;
+    width: 90vw !important;
+}
+
+.sidebar-open {
+    width: 15vw;
+    height: 100%;
+    padding: 1vw;
+    transition: left .3s ease-in-out;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    margin-left: 0;
+    background-color: #eee;
+}
+
+.sidebar-closed {
+    width: 15vw;
+    height: 100%;
+    transition: left .3s ease-in-out;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-left: -20vw;
+}
