@@ -4,7 +4,7 @@
             "selector": "node",
             "style": {
                 "content": "data(label)",
-                "shape": "data(type)",
+                "shape": "data(shape)",
                 "width": "90vw",
                 "text-valign": "center",
                 "text-halign": "center",
@@ -14,9 +14,21 @@
                 "text-overflow-wrap": "whitespace",
                 "text-max-width": "80vw",
                 "background-color": "white",
-                "border-color": "black",
-                "border-width": "1px",
-                "border-style": "dotted"
+                "border-color": "#777",
+                "border-width": "1vw",
+                "border-style": "solid"
+            }
+        },
+        {
+            "selector": "node[^shape]",
+            "style": {
+                "shape": "round-rectangle"
+            }
+        },
+        {
+            "selector": "node[^label]",
+            "style": {
+                "content": ""
             }
         },
         {
@@ -35,15 +47,66 @@
         {
             "selector": "edge",
             "style": {
+                "label": "data(label)",
+                "font-size": "12vh",
                 "curve-style": "bezier",
                 "target-arrow-shape": "triangle",
-                "line-style": "solid"
+                "line-style": "solid",
+                "edge-text-rotation": "autorotate"
             }
         },
         {
             "selector": ".root-edge",
             "style": {
-                "line-color": "#f00"
+                "line-color": "#dbc8ae"
+            }
+        },
+        {
+            "selector": "node[type = 'slot']",
+            "style": {
+                "text-valign": "center",
+                "text-halign": "center"
+            }
+        },
+        {
+            "selector": "edge[edge_type = 'step_step']",
+            "style": {
+                "line-color": "#dadad7",
+                "width": "3vw"
+            }
+        },
+        {
+            "selector": "edge[edge_type = 'step_slot']",
+            "style": {
+                "line-color": "#dadad7",
+                "width": "2vw"
+            }
+        },
+        {
+            "selector": "edge[edge_type = 'slot_value']",
+            "style": {
+                "line-color": "#dadad7",
+                "width": "1vw"
+            }
+        },
+        {
+            "selector": "edge[edge_type = 'slot_etype']",
+            "style": {
+                "line-color": "#dadad7",
+                "width": "1vw"
+            }
+        },
+        {
+            "selector": "edge:selected",
+            "style": {
+                "line-color": "#91a59f",
+                "target-arrow-color": "#91a59f"
+            }
+        },
+        {
+            "selector": ".optional-before",
+            "style": {
+                "line-style": "dashed"
             }
         }
     ],

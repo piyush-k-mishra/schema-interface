@@ -16,12 +16,12 @@ class Viewer extends Component {
             nodeData: {}
         }
 
-        this.callbackFunction = this.callbackFunction.bind(this)
-        this.sidebarCallback = this.sidebarCallback.bind(this)
+        this.callbackFunction = this.callbackFunction.bind(this);
+        this.sidebarCallback = this.sidebarCallback.bind(this);
     }
 
     callbackFunction(childData) {
-        this.setState({ schemaResponse: childData })
+        this.setState({ schemaResponse: childData });
     }
 
     sidebarCallback(data) {
@@ -29,12 +29,12 @@ class Viewer extends Component {
             this.setState({
                 isOpen: false,
                 nodeData: data
-            })
+            });
         } else {
             this.setState({
                 isOpen: true,
                 nodeData: data
-            })
+            });
         }
     }
 
@@ -48,7 +48,7 @@ class Viewer extends Component {
                 elements={this.state.schemaResponse}
                 sidebarCallback={this.sidebarCallback}
                 className={canvasClassName}
-            />
+            />;
         }
 
         return (
@@ -63,7 +63,7 @@ class Viewer extends Component {
                     <div style={{'width': '0', height: '3vh'}}>
                         <RefreshIcon color="action" fontSize='large'/>
                     </div>
-                </div>                
+                </div>
             </div>
         )
     }

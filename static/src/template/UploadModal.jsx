@@ -32,11 +32,11 @@ class UploadModal extends Component {
 
   checkMimeType(event) {
     //getting file object
-    let files = event.target.files
+    let files = event.target.files;
     //define message container
-    let err = []
+    let err = [];
     // list allow mime type
-    const types = ['application/ld+json', 'application/json', 'text/plain']
+    const types = ['application/ld+json', 'application/json', 'text/plain'];
     // loop access array
     for (var x = 0; x < files.length; x++) {
       // compare file type find doesn't matach
@@ -47,26 +47,26 @@ class UploadModal extends Component {
     };
     for (var z = 0; z < err.length; z++) {// if message not same old that mean has error 
       // discard selected file
-      toast.error(err[z])
-      event.target.value = null
+      toast.error(err[z]);
+      event.target.value = null;
     }
     return err.length === 0;
   }
 
   maxSelectFile(event) {
-    let files = event.target.files
+    let files = event.target.files;
     if (files.length > 1) {
-      const msg = 'Only 1 file can be uploaded at a time'
-      event.target.value = null
-      toast.warn(msg)
+      const msg = 'Only 1 file can be uploaded at a time';
+      event.target.value = null;
+      toast.warn(msg);
       return false;
     }
     return true;
   }
 
   checkFileSize(event) {
-    let files = event.target.files
-    let size = 2000000
+    let files = event.target.files;
+    let size = 2000000;
     let err = [];
     for (var x = 0; x < files.length; x++) {
       if (files[x].size > size) {
@@ -75,33 +75,33 @@ class UploadModal extends Component {
     };
     for (var z = 0; z < err.length; z++) {// if message not same old that mean has error 
       // discard selected file
-      toast.error(err[z])
-      event.target.value = null
+      toast.error(err[z]);
+      event.target.value = null;
     }
     return err.length === 0;
   }
 
   onChangeHandler(event) {
-    var files = event.target.files
+    var files = event.target.files;
     if (this.maxSelectFile(event) && this.checkMimeType(event) && this.checkFileSize(event)) {
       // if return true allow to setState
       this.setState({
         selectedFile: files,
         loaded: 0,
         valid: true
-      })
+      });
     } else {
-      this.setState({ valid: false })
-      setTimeout(toast.dismiss, 4000)
+      this.setState({ valid: false });
+      setTimeout(toast.dismiss, 4000);
     }
   }
 
   onClickHandler() {
-    const data = new FormData()
+    const data = new FormData();
     for (var x = 0; x < this.state.selectedFile.length; x++) {
-      data.append('file', this.state.selectedFile[x])
+      data.append('file', this.state.selectedFile[x]);
     }
-    axios.post("http://localhost:5000/upload", data, {
+    axios.post("/upload", data, {
       onUploadProgress: ProgressEvent => {
         this.setState({
           loaded: (ProgressEvent.loaded / ProgressEvent.total * 100),
@@ -114,8 +114,8 @@ class UploadModal extends Component {
         setTimeout(this.toggle, 1000);
       })
       .catch(err => { // then print response status
-        toast.error('upload fail')
-      })
+        toast.error('upload fail');
+      });
   }
 
   render() {

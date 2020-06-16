@@ -7,14 +7,15 @@ import isEmpty from 'lodash/isEmpty'
 
 
 function SideBar (props) {
+    let i = 0;
     return (
         <div className={props.className}>
             {isEmpty(props.data) ? '' : 
                 <List disablePadding dense>
                     {Object.entries(props.data).map(([key, val]) => {
                         return (
-                        <div>
-                            <ListItem key={val}>
+                        <div key={++i}>
+                            <ListItem key={key}>
                                 <ListItemText style={{'overflowWrap': 'anywhere'}}>{key}: {val}</ListItemText>
                             </ListItem>
                             <Divider />

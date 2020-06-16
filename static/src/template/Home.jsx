@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Row, Col, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Container} from 'reactstrap';
 
 class Home extends Component {
   render() {
