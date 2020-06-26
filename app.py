@@ -4,192 +4,117 @@ import json
 app = Flask(__name__, static_folder='./static', template_folder='./static')
 json_string = ''
 
-nodes = []
+nodes = {}
 edges = []
 
-def get_nodes_and_edges(schema):
-    node = []
-    edges = []
+schema_key_dict = {
+    'schema': ['@id', 'super', 'name'],
+    'step': ['@id', '@type', 'aka'],
+    'slot': ['@id', 'name', 'aka', 'role', 'entityTypes'],
+    'value': ['valueId', 'value', 'entityTypes']
+}
 
-    nodes.append({
+def createNode(_id, _label, _type, _shape=''):
+    return {
         'data': {
-            'id': 'root',
-            'label': schema['name'],
-            'shape': 'round-rectangle'
-        }
-    })
+            'id': _id,
+            '_label': _label if _label else _id,
+            '_type': _type,
+            '_shape': _shape
+        },
+        'classes': ''
+    }
+
+def createEdge(_id, _source, _target, _label='', _edge_type=''):
+    return {
+        'data': {
+            'id': _id,
+            '_label': _label,
+            'source': _source,
+            'target': _target,
+            '_edge_type': _edge_type
+        },
+        'classes': ''
+    }
+
+def get_nodes_and_edges(schema):
+    nodes = {}
+    edges = []
+    steps_to_connect = []
+    
+    nodes['root'] = createNode('root', 'Start', 'root', 'round-rectangle')
 
     for step in schema['steps']:
-        nodes.append({
-            'data': {
-                'id': step['@id'], 
-                'label': step['@id'].split('/')[-1].replace('_', ' '),
-                'type': 'step',
-                '@type': step['@type'],
-                'shape': 'ellipse'
-            }
-        })
+        _label = step['@id'].split('/')[-1].replace('_', ' ')
+        nodes[step['@id']] = createNode(step['@id'], _label, 'step', 'ellipse')
 
-        edges.append({
-            'data': {
-                'id': f"root_{step['@id']}",
-                'label': '',
-                'source': 'root',
-                'target': step['@id'],
-                'edge_type': 'root_step'
-            },
-            'classes': 'root-edge'
-        })
+        steps_to_connect.append(step['@id'])
 
         if 'slots' in step:
             for slot in step['slots']:
-                nodes.append({
-                    'data': {
-                        'id': slot['@id'], 
-                        'label': slot['name'],
-                        'type': 'slot',
-                        '@role': slot['role'],
-                        'shape': 'round-pentagon'
-                    }
-                })
-                edges.append({
-                    'data': {
-                        'id': f"{step['@id']}_{slot['@id']}",
-                        'label': '',
-                        'source': step['@id'],
-                        'target': slot['@id'],
-                        'edge_type': 'step_slot'
-                    }
-                })
+                nodes[slot['@id']] = createNode(slot['@id'], slot['name'], 'slot', 'round-pentagon')
+                
+                e_id = f"{step['@id']}_{slot['@id']}"
+                edges.append(createEdge(e_id, step['@id'], slot['@id'], _edge_type='step_slot'))
 
                 if 'values' in slot:
                     for value in slot['values']:
-                        nodes.append({
-                            'data': {
-                                'id': value['valueId'], 
-                                'label': value['value'],
-                                'type': 'value',
-                                'shape': 'round-hexagon'
-                            }
-                        })
-                        edges.append({
-                            'data': {
-                                'id': f"{slot['@id']}_{value['valueId']}",
-                                'label': '',
-                                'source': slot['@id'],
-                                'target': value['valueId'],
-                                'edge_type': 'slot_value'
-                            }
-                        })
-                if 'entityTypes' in slot:
-                    if isinstance(slot['entityTypes'], str):
-                        nodes.append({
-                            'data': {
-                                'id': slot['entityTypes'], 
-                                'label': slot['entityTypes'].split(':')[-1],
-                                'type': 'entityType',
-                                'shape': 'round-octagon'
-                            }
-                        })
-                        edges.append({
-                            'data': {
-                                'id': f"{slot['@id']}_{slot['entityTypes']}",
-                                'label': '',
-                                'source': slot['@id'],
-                                'target': slot['entityTypes'],
-                                'edge_type': 'slot_etype'
-                            }
-                        })
-                            
-                    else:
-                        for entityType in slot['entityTypes']:
-                            nodes.append({
-                                'data': {
-                                    'id': entityType, 
-                                    'label': entityType.split(':')[-1],
-                                    'type': 'entityType',
-                                    'shape': 'round-octagon'
-                                }
-                            })
-                            edges.append({
-                                'data': {
-                                    'id': f"{slot['@id']}_{entityType}",
-                                    'label': '',
-                                    'source': slot['@id'],
-                                    'target': entityType,
-                                    'edge_type': 'slot_etype'
-                                }
-                            })
+                        nodes[value['valueId']] = createNode(value['valueId'], value['value'], 'value', 'round-diamond')
+
+                        e_id = f"{slot['@id']}_{value['valueId']}"
+                        edges.append(createEdge(e_id, slot['@id'], value['valueId'], _edge_type='slot_value'))
     
     for order in schema['order']:
         if 'flags' in order:
             if order['flags'] == 'precondition':
                 if isinstance(order['before'], list):
                     for before in order['before']:
-                        edges.append({
-                            'data': {
-                                'id': f"{before}_{order['after']}",
-                                'label': 'Before',
-                                'source': before,
-                                'target': order['after'],
-                                'edge_type': 'step_step'
-                            }
-                        })
+                        e_id = f"{before}_{order['after']}"
+                        edges.append(createEdge(e_id, before, order['after'], 'Precondition', 'step_step'))
+                        if order['after'] in steps_to_connect:
+                            steps_to_connect.remove(order['after'])
                 else:
-                    edges.append({
-                        'data': {
-                            'id': f"{order['before']}_{order['after']}",
-                            'label': 'Before',
-                            'source': order['before'],
-                            'target': order['after'],
-                            'edge_type': 'step_step'
-                        }
-                    })
+                    e_id = f"{order['before']}_{order['after']}"
+                    edges.append(createEdge(e_id, order['before'], order['after'], 'Precondition', 'step_step'))
+                    
+                    if order['after'] in steps_to_connect:
+                        steps_to_connect.remove(order['after'])
+
 
         elif 'overlaps' in order:
-            parent_id = "_".join([node_id.split("/")[-1] for node_id in order['overlaps']])
-            for node_id in order['overlaps']:
-                node = get_node_by_id(node_id)
-                node['data']['parent'] = parent_id
-            nodes.append({
-                "data": {"id": parent_id}
-            })
+            pass
+            # for node_id in order['overlaps']:
+            #     node = get_node_by_id(node_id)
+            #     node['classes'] = ' overlapped'
         elif 'contained' in order and 'container' in order:
-            for node in nodes:
-                if node['data']['id'] == order['contained']:
-                    node['data']['parent'] = order['container']
+            if nodes[order['contained']]:
+                nodes[order['contained']]['data']['parent'] = order['container']
         else:
             if 'before' in order:
                 if isinstance(order['before'], list):
                     for before in order['before']:
-                        edges.append({
-                            'data': {
-                                'id': f"{before}_{order['after']}",
-                                'label': 'Before',
-                                'source': before,
-                                'target': order['after'],
-                                'edge_type': 'step_step'
-                            },
-                            'classes': 'optional-before'
-                        })
-                else:
-                    edges.append({
-                        'data': {
-                            'id': f"{order['before']}_{order['after']}",
-                            'label': 'Before',
-                            'source': order['before'],
-                            'target': order['after'],
-                            'edge_type': 'step_step'
-                        },
-                        'classes': 'optional-before'
-                    })
-    
-    return nodes, edges
+                        e_id = f"{before}_{order['after']}"
+                        e = createEdge(e_id, before, order['after'], 'Before', 'step_step')
+                        e['classes'] = 'optional-before'
+                        edges.append(e)
 
-def get_node_by_id(node_id):
-    for node in nodes:
-        if node['data']['id'] == node_id:
-            return node
+                        if order['after'] in steps_to_connect:
+                            steps_to_connect.remove(order['after'])
+                else:
+                    e_id = f"{order['before']}_{order['after']}"
+                    e = createEdge(e_id, order['before'], order['after'], 'Before', 'step_step')
+                    e['classes'] = 'optional-before'
+                    edges.append(e)
+                    
+                    if order['after'] in steps_to_connect:
+                        steps_to_connect.remove(order['after'])
+
+    for step in steps_to_connect:
+        e = createEdge(f"root_{step}", 'root', step, _edge_type='root_step')
+        e['classes'] = 'root-edge'
+        edges.append(e)
+        
+    return nodes, edges
 
 def get_connencted_nodes(selected_node):
     n = []
@@ -197,36 +122,27 @@ def get_connencted_nodes(selected_node):
     id_set = set()
 
     if selected_node == 'root':
-        id_set.add(selected_node)
-        for edge in edges:
-            if edge['data']['source'] == selected_node:
-                e.append(edge)
-                id_set.add(edge['data']['target'])
-        for node in nodes:
-            if node['data']['id'] in id_set:
+        n.append(nodes[selected_node])
+        for key, node in nodes.items():
+            if node['data']['_type'] == 'step':
                 n.append(node)
-                if 'parent' in node['data']:
-                    parent_node = get_node_by_id(node['data']['parent'])
-                    if parent_node not in n:
-                        n.append(parent_node)
         for edge in edges:
-            if edge['data']['source'] in id_set and edge['data']['target'] in id_set:
-                if edge not in e:
-                    e.append(edge)
+            if edge['data']['_edge_type'] == 'step_step' or edge['data']['_edge_type'] == 'root_step':
+                e.append(edge)
     else:
         for edge in edges:
             if edge['data']['source'] == selected_node and edge not in e:
                 e.append(edge)
-                node = get_node_by_id(edge['data']['target'])
-                if node['data']['type'] == 'slot':
+                node = nodes[edge['data']['target']]
+                if node['data']['_type'] == 'slot':
                     n.append(node)
                     id_set.add(node['data']['id'])
         for edge in edges:
             if edge['data']['source'] in id_set or edge['data']['target'] in id_set:
                 if edge not in e:
                     e.append(edge)
-                    source_node = get_node_by_id(edge['data']['source'])
-                    target_node = get_node_by_id(edge['data']['target'])
+                    source_node = nodes[edge['data']['source']]
+                    target_node = nodes[edge['data']['target']]
                     if source_node not in n:
                         n.append(source_node)
                     if target_node not in n:
@@ -246,14 +162,20 @@ def upload():
     file = request.files['file']
     schema_string = file.read().decode("utf-8")
     schema = json.loads(schema_string)['schemas'][0]
-    global nodes 
-    global edges 
+    global nodes
+    global edges
     nodes, edges = get_nodes_and_edges(schema)
+    schema_name = schema['name']
     parsed_schema = get_connencted_nodes('root')
-    return json.dumps(parsed_schema)
+    return json.dumps({
+        'parsedSchema': parsed_schema,
+        'name': schema['name']
+    })
 
 @app.route('/node', methods=['GET'])
 def get_subtree():
+    if not (bool(nodes) and bool(edges)):
+        return 'Parsing error! Upload the file again.', 400
     node_id = request.args.get('ID')
     subtree = get_connencted_nodes(node_id)
     return json.dumps(subtree)

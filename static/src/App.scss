@@ -1,14 +1,16 @@
 .App {
     font-family: Arial, Helvetica, sans-serif;
     height: max-content;
+    width: 100vw;
 }
 
 .Header {
     display: inline-flex;
     background-color: #000;
     height: max-content;
-    width: max-content;
+    width: 100vw;
     text-align: center;
+    margin-left: 0 !important;
 
     #logo {
         height:15vh;
@@ -34,6 +36,15 @@
 
 .row {
     width: inherit;
+}
+
+#viewer {
+    width: 100vw;
+
+    .schema-name {
+        float: right;
+        margin-right: 2vw;
+    }
 }
 
 .canvas-shrunk {

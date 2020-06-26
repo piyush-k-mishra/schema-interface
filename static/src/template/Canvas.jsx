@@ -1,11 +1,16 @@
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+import cytoscape from 'cytoscape';
+import klay from 'cytoscape-klay';
 
 import axios from 'axios';
 import isNull from 'lodash/isNull';
+import isEmpty from 'lodash/isEmpty';
 
 import Background from '../public/canvas_bg.png';
 import CyStyle from '../public/cy-style.json';
+
+cytoscape.use(klay)
 
 class Canvas extends React.Component {
     constructor(props) {
@@ -36,23 +41,31 @@ class Canvas extends React.Component {
                 }
                 this.setState({currentSubtree: res.data});
                 this.cy.add(res.data);
-                let layout = this.cy.makeLayout(CyStyle.layout);
+                let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
+                    ready: e => {
+                        e.cy.center();
+                    }
+                }));
                 layout.run();
             })
             .catch(err => {
-                console.error(err);
+                this.props.errorHandlerCallback(err);
             })
     }
 
     removeSubTree(currentSubtree) {
         const nodes = currentSubtree.nodes;
         for (let i = 0; i < nodes.length; i++) {
-            if (nodes[i].data.type !== 'step' || nodes[i].data.id === 'root') {
+            if (nodes[i].data._type !== 'step' || nodes[i].data.id === 'root') {
                 let el = this.cy.getElementById(nodes[i].data.id);
                 this.cy.remove(el);
             }
         }
-        let layout = this.cy.makeLayout(CyStyle.layout);
+        let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
+            ready: e => {
+                e.cy.center();
+            }
+        }));
         layout.run();
         this.setState({currentSubtree: null});
     }
@@ -62,7 +75,11 @@ class Canvas extends React.Component {
             this.cy.on('tap', event => {
                 if (event.target.group && event.target.group() === 'nodes') {
                     let node = event.target.data();
-                    this.showSubTree(node);
+                    if (node.id === 'root') {
+                        this.cy.getElementById(node.id).unselect();
+                    } else {
+                        this.showSubTree(node);
+                    }
                 } else {
                     if (!isNull(this.state.currentSubtree)) {
                         this.removeSubTree(this.state.currentSubtree);
@@ -71,6 +88,22 @@ class Canvas extends React.Component {
             })
 
             this.cy.on('cxttap', event => {
+                this.cy.resize();
+                if (isEmpty(event.target.data())) {
+                    let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
+                        ready: e => {
+                            e.cy.center();
+                        }
+                    }));
+                    layout.run();
+                } else {
+                    let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
+                        ready: e => {
+                            e.cy.center();
+                        }
+                    }));
+                    layout.run();
+                }
                 this.props.sidebarCallback(event.target.data());
             })
         })
@@ -85,7 +118,7 @@ class Canvas extends React.Component {
         };
 
         return (
-            <div className={this.props.className} style={{marginTop: '2vh', width: 'inherit'}}>
+            <div className={this.props.className} style={{width: 'inherit'}}>
                 <CytoscapeComponent
                     elements={this.state.canvasElements}
                     layout={CyStyle.layout}

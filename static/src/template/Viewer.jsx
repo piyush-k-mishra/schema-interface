@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import isEmpty from 'lodash/isEmpty'
-import RefreshIcon from '@material-ui/icons/Refresh'
+import isEmpty from 'lodash/isEmpty';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 import UploadModal from './UploadModal';
 import Canvas from './Canvas';
@@ -12,6 +12,7 @@ class Viewer extends Component {
 
         this.state = {
             schemaResponse: '',
+            schemaName: '',
             isOpen: false,
             nodeData: {}
         }
@@ -20,8 +21,10 @@ class Viewer extends Component {
         this.sidebarCallback = this.sidebarCallback.bind(this);
     }
 
-    callbackFunction(childData) {
-        this.setState({ schemaResponse: childData });
+    callbackFunction(response) {
+        this.setState({ 
+            schemaResponse: response.parsedSchema,
+            schemaName: response.name });
     }
 
     sidebarCallback(data) {
@@ -40,10 +43,12 @@ class Viewer extends Component {
 
     render() {
         let canvas = "";
+        let schemaHeading = "";
         let sidebarClassName = this.state.isOpen ? "sidebar-open" : "sidebar-closed";
         let canvasClassName = this.state.isOpen ? "canvas-shrunk": "canvas-wide";
 
         if (this.state.schemaResponse !== '') {
+            schemaHeading = <h3 className="schema-name">{this.state.schemaName}</h3>
             canvas = <Canvas id="canvas"
                 elements={this.state.schemaResponse}
                 sidebarCallback={this.sidebarCallback}
@@ -54,6 +59,7 @@ class Viewer extends Component {
         return (
             <div id="viewer">
                 <UploadModal buttonLabel="Upload Schema" parentCallback={this.callbackFunction} />
+                {schemaHeading}
                 <div style={{display: 'inline-flex'}}>
                     <SideBar
                         data={this.state.nodeData}

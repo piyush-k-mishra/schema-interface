@@ -3,8 +3,8 @@
         {
             "selector": "node",
             "style": {
-                "content": "data(label)",
-                "shape": "data(shape)",
+                "content": "data(_label)",
+                "shape": "data(_shape)",
                 "width": "90vw",
                 "text-valign": "center",
                 "text-halign": "center",
@@ -20,15 +20,44 @@
             }
         },
         {
-            "selector": "node[^shape]",
+            "selector": "node[^_shape]",
             "style": {
                 "shape": "round-rectangle"
             }
         },
         {
-            "selector": "node[^label]",
+            "selector": "node[^_label]",
             "style": {
                 "content": ""
+            }
+        },
+        {
+            "selector": "node[id = 'root']",
+            "style": {
+                "background-color": "#eeeeee"
+            }
+        },
+        {
+            "selector": "node[_type = 'slot']",
+            "style": {
+                "background-color": "#f8d8be",
+                "text-valign": "center",
+                "text-halign": "center"
+            }
+        },
+        {
+            "selector": "node[_type = 'step']",
+            "style": {
+                "background-color": "#c7ebe6",
+                "text-valign": "center",
+                "text-halign": "center"
+            }
+        },
+        {
+            "selector": "node:parent",
+            "style": {
+                "text-valign": "top",
+                "text-halign": "center"
             }
         },
         {
@@ -38,16 +67,15 @@
             }
         },
         {
-            "selector": ":parent",
+            "selector": ".overlapped",
             "style": {
-                "text-valign": "top",
-                "text-halign": "center"
+                "border-color": "#a7bf37"
             }
         },
         {
             "selector": "edge",
             "style": {
-                "label": "data(label)",
+                "label": "data(_label)",
                 "font-size": "12vh",
                 "curve-style": "bezier",
                 "target-arrow-shape": "triangle",
@@ -58,41 +86,34 @@
         {
             "selector": ".root-edge",
             "style": {
-                "line-color": "#dbc8ae"
+                "line-color": "#dadad7"
             }
         },
         {
-            "selector": "node[type = 'slot']",
-            "style": {
-                "text-valign": "center",
-                "text-halign": "center"
-            }
-        },
-        {
-            "selector": "edge[edge_type = 'step_step']",
+            "selector": "edge[_edge_type = 'step_step']",
             "style": {
                 "line-color": "#dadad7",
                 "width": "3vw"
             }
         },
         {
-            "selector": "edge[edge_type = 'step_slot']",
+            "selector": "edge[_edge_type = 'step_slot']",
             "style": {
-                "line-color": "#dadad7",
+                "line-color": "#000080",
                 "width": "2vw"
             }
         },
         {
-            "selector": "edge[edge_type = 'slot_value']",
+            "selector": "edge[_edge_type = 'slot_value']",
             "style": {
-                "line-color": "#dadad7",
+                "line-color": "#000080",
                 "width": "1vw"
             }
         },
         {
-            "selector": "edge[edge_type = 'slot_etype']",
+            "selector": "edge[_edge_type = 'slot_etype']",
             "style": {
-                "line-color": "#dadad7",
+                "line-color": "#000080",
                 "width": "1vw"
             }
         },
@@ -111,16 +132,36 @@
         }
     ],
     "layout": {
-        "name": "breadthfirst",
+        "name": "klay",
+        "nodeDimensionsIncludeLabels": false,
         "fit": true,
-        "directed": true,
-        "padding": 10,
-        "circle": false,
-        "grid": false,
-        "spacingFactor": 0.75,
-        "avoidOverlap": true,
-        "nodeDimensionsIncludeLabels": true,
-        "roots": "#root",
-        "maximal": true
+        "padding": 20,
+        "animate": false,
+        "animationDuration": 500,
+        "klay": {
+          "addUnnecessaryBendpoints": false,
+          "aspectRatio": 1.6,
+          "borderSpacing": 20,
+          "compactComponents": false,
+          "crossingMinimization": "LAYER_SWEEP",
+          "cycleBreaking": "GREEDY",
+          "direction": "RIGHT",
+          "edgeRouting": "SPLINES",
+          "edgeSpacingFactor": 1.5,
+          "feedbackEdges": false,
+          "fixedAlignment": "NONE",
+          "inLayerSpacingFactor": 1,
+          "layoutHierarchy": false,
+          "linearSegmentsDeflectionDampening": 0.3,
+          "mergeEdges": false,
+          "mergeHierarchyCrossingEdges": true,
+          "nodeLayering": "NETWORK_SIMPLEX",
+          "nodePlacement": "LINEAR_SEGMENTS",
+          "randomizationSeed": 1,
+          "routeSelfLoopInside": false,
+          "separateConnectedComponents": true,
+          "spacing": 20,
+          "thoroughness": 10
+        }
     }
 }

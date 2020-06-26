@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Progress } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Progress, Input, Label, Form,FormGroup } from 'reactstrap';
 import { ToastContainer, toast } from 'react-toastify';
 
 import axios from 'axios';
@@ -136,16 +136,17 @@ class UploadModal extends Component {
           <ModalHeader toggle={this.toggle}>Upload Schema</ModalHeader>
 
           <ModalBody>
-            <div className="form-group files">
-              <label>Upload Your File</label>
-              <input type="file" className="form-control" onChange={this.onChangeHandler} />
-            </div>
+            <Form>
+              <FormGroup className="files">
+                <Label>Upload Your File</Label>
+                <Input type="file" className="form-control" style={{height: 'auto'}} onChange={this.onChangeHandler} />
+              </FormGroup>
 
-            <div className="form-group">
-              <ToastContainer closeButton={false} />
-              <Progress max="100" color="success" value={this.state.loaded} >{Math.round(this.state.loaded, 2)}%</Progress>
-            </div>
-
+              <FormGroup>
+                <ToastContainer closeButton={false} />
+                <Progress max="100" color="success" value={this.state.loaded} >{Math.round(this.state.loaded, 2)}%</Progress>
+              </FormGroup>
+            </Form>
           </ModalBody>
 
           <ModalFooter>

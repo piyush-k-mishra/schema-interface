@@ -17,7 +17,7 @@ import './App.scss'
 export default function App() {
   return (
     <Router>
-      <div>
+      <div className="App">
         <Row className="Header">
           <Col md="2">
             <img src={'/static'+ logo} id="logo" alt="Curate" />
