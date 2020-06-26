@@ -14,7 +14,7 @@ schema_key_dict = {
     'value': ['valueId', 'value', 'entityTypes']
 }
 
-def createNode(_id, _label, _type, _shape=''):
+def create_node(_id, _label, _type, _shape=''):
     return {
         'data': {
             'id': _id,
@@ -25,7 +25,7 @@ def createNode(_id, _label, _type, _shape=''):
         'classes': ''
     }
 
-def createEdge(_id, _source, _target, _label='', _edge_type=''):
+def create_edge(_id, _source, _target, _label='', _edge_type=''):
     return {
         'data': {
             'id': _id,
@@ -37,51 +37,67 @@ def createEdge(_id, _source, _target, _label='', _edge_type=''):
         'classes': ''
     }
 
+def handle_precondition(order, label='Precondition'):
+    e = []
+    if isinstance(order['before'], list):
+        for before_id in order['before']:
+            if isinstance(order['after'], list):
+                for after_id in order['after']:
+                    e_id = f"{before_id}_{after_id}"
+                    e.append(create_edge(e_id, before_id, after_id, label, 'step_step'))
+            else:
+                e_id = f"{before_id}_{order['after']}"
+                e.append(create_edge(e_id, before_id, order['after'], label, 'step_step'))
+    else:
+        if isinstance(order['after'], list):
+            for after_id in order['after']:
+                e_id = f"{order['before']}_{after_id}"
+                e.append(create_edge(e_id, order['before'], after_id, label, 'step_step'))
+        else:
+            e_id = f"{order['before']}_{order['after']}"
+            e.append(create_edge(e_id, order['before'], order['after'], label, 'step_step'))
+    return e
+
+def handle_optional(_order):
+    print(_order)
+
+def handle_flags(_flag, _order):
+    switcher={
+        'precondition': handle_precondition,
+        'optional': handle_optional
+    }
+    func = switcher.get(_flag, lambda *args: None)
+    return func(_order)
+
 def get_nodes_and_edges(schema):
     nodes = {}
     edges = []
     steps_to_connect = []
     
-    nodes['root'] = createNode('root', 'Start', 'root', 'round-rectangle')
+    nodes['root'] = create_node('root', 'Start', 'root', 'round-rectangle')
 
     for step in schema['steps']:
         _label = step['@id'].split('/')[-1].replace('_', ' ')
-        nodes[step['@id']] = createNode(step['@id'], _label, 'step', 'ellipse')
+        nodes[step['@id']] = create_node(step['@id'], _label, 'step', 'ellipse')
 
         steps_to_connect.append(step['@id'])
 
         if 'slots' in step:
             for slot in step['slots']:
-                nodes[slot['@id']] = createNode(slot['@id'], slot['name'], 'slot', 'round-pentagon')
+                nodes[slot['@id']] = create_node(slot['@id'], slot['name'], 'slot', 'round-pentagon')
                 
                 e_id = f"{step['@id']}_{slot['@id']}"
-                edges.append(createEdge(e_id, step['@id'], slot['@id'], _edge_type='step_slot'))
+                edges.append(create_edge(e_id, step['@id'], slot['@id'], _edge_type='step_slot'))
 
                 if 'values' in slot:
                     for value in slot['values']:
-                        nodes[value['valueId']] = createNode(value['valueId'], value['value'], 'value', 'round-diamond')
+                        nodes[value['valueId']] = create_node(value['valueId'], value['value'], 'value', 'round-diamond')
 
                         e_id = f"{slot['@id']}_{value['valueId']}"
-                        edges.append(createEdge(e_id, slot['@id'], value['valueId'], _edge_type='slot_value'))
+                        edges.append(create_edge(e_id, slot['@id'], value['valueId'], _edge_type='slot_value'))
     
     for order in schema['order']:
-        if 'flags' in order:
-            if order['flags'] == 'precondition':
-                if isinstance(order['before'], list):
-                    for before in order['before']:
-                        e_id = f"{before}_{order['after']}"
-                        edges.append(createEdge(e_id, before, order['after'], 'Precondition', 'step_step'))
-                        if order['after'] in steps_to_connect:
-                            steps_to_connect.remove(order['after'])
-                else:
-                    e_id = f"{order['before']}_{order['after']}"
-                    edges.append(createEdge(e_id, order['before'], order['after'], 'Precondition', 'step_step'))
-                    
-                    if order['after'] in steps_to_connect:
-                        steps_to_connect.remove(order['after'])
-
-
-        elif 'overlaps' in order:
+        if 'overlaps' in order:
             pass
             # for node_id in order['overlaps']:
             #     node = get_node_by_id(node_id)
@@ -89,28 +105,28 @@ def get_nodes_and_edges(schema):
         elif 'contained' in order and 'container' in order:
             if nodes[order['contained']]:
                 nodes[order['contained']]['data']['parent'] = order['container']
-        else:
-            if 'before' in order:
-                if isinstance(order['before'], list):
-                    for before in order['before']:
-                        e_id = f"{before}_{order['after']}"
-                        e = createEdge(e_id, before, order['after'], 'Before', 'step_step')
-                        e['classes'] = 'optional-before'
-                        edges.append(e)
-
-                        if order['after'] in steps_to_connect:
-                            steps_to_connect.remove(order['after'])
-                else:
-                    e_id = f"{order['before']}_{order['after']}"
-                    e = createEdge(e_id, order['before'], order['after'], 'Before', 'step_step')
-                    e['classes'] = 'optional-before'
-                    edges.append(e)
-                    
-                    if order['after'] in steps_to_connect:
+        elif 'before' in order and 'after' in order:
+            e = []
+            
+            if 'flags' in order:
+                e = handle_flags(order['flags'], order)
+            else:
+                e = handle_precondition(order, 'Before')
+                for entry in e:
+                    entry['classes'] = 'optional-before'
+            
+            edges.extend(e)
+            
+            if isinstance(order['after'], list):
+                for step_id in order['after']:
+                    if step_id in steps_to_connect:
+                        steps_to_connect.remove(step_id)
+            else:
+                if order['after'] in steps_to_connect:
                         steps_to_connect.remove(order['after'])
 
     for step in steps_to_connect:
-        e = createEdge(f"root_{step}", 'root', step, _edge_type='root_step')
+        e = create_edge(f"root_{step}", 'root', step, _edge_type='root_step')
         e['classes'] = 'root-edge'
         edges.append(e)
         
