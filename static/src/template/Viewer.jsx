@@ -5,6 +5,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import UploadModal from './UploadModal';
 import Canvas from './Canvas';
 import SideBar from './SideBar';
+import JsonView from './JsonView';
 
 class Viewer extends Component {
     constructor(props) {
@@ -13,6 +14,7 @@ class Viewer extends Component {
         this.state = {
             schemaResponse: '',
             schemaName: '',
+            schmeaJson: '',
             isOpen: false,
             nodeData: {}
         }
@@ -24,7 +26,9 @@ class Viewer extends Component {
     callbackFunction(response) {
         this.setState({ 
             schemaResponse: response.parsedSchema,
-            schemaName: response.name });
+            schemaName: response.name,
+            schemaJson: response.schemaJson 
+        });
     }
 
     sidebarCallback(data) {
@@ -44,6 +48,7 @@ class Viewer extends Component {
     render() {
         let canvas = "";
         let schemaHeading = "";
+        let jsonViewer = "";
         let sidebarClassName = this.state.isOpen ? "sidebar-open" : "sidebar-closed";
         let canvasClassName = this.state.isOpen ? "canvas-shrunk": "canvas-wide";
 
@@ -54,6 +59,7 @@ class Viewer extends Component {
                 sidebarCallback={this.sidebarCallback}
                 className={canvasClassName}
             />;
+            jsonViewer = <JsonView schemaJson={this.state.schemaJson}/>;
         }
 
         return (
@@ -70,6 +76,7 @@ class Viewer extends Component {
                         <RefreshIcon color="action" fontSize='large'/>
                     </div>
                 </div>
+                {jsonViewer}
             </div>
         )
     }

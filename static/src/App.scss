@@ -7,13 +7,22 @@
 .Header {
     display: inline-flex;
     background-color: #000;
-    height: max-content;
     width: 100vw;
+    height: 20vh;
     text-align: center;
     margin-left: 0 !important;
 
+    .shrink {
+        height: 10vh;
+    }
+
     #logo {
-        height:15vh;
+        height: inherit;
+        color: #ddd;
+
+        img {
+            height: inherit;
+        }
     }
 
     #title {
@@ -27,11 +36,6 @@
     a{
         color: white;
     }
-}
-
-.Body {
-    height: 85vh;
-    width: 100vw;
 }
 
 .row {
@@ -73,4 +77,13 @@
     transition: left .3s ease-in-out;
     border: 1px solid rgba(0, 0, 0, 0.1);
     margin-left: -20vw;
+}
+
+#schema-json {
+    width: 90vw;
+    height: 40vh;
+    margin: 3vh 5vw;
+    border: solid darkslateblue 2px;
+    background-color: lavender;
+    overflow-y: scroll;
 }

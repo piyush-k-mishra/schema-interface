@@ -19,8 +19,8 @@ export default function App() {
     <Router>
       <div className="App">
         <Row className="Header">
-          <Col md="2">
-            <img src={'/static'+ logo} id="logo" alt="Curate" />
+          <Col md="2" id="logo">
+            <img src={'/static'+ logo} alt="Curate" />
           </Col>
           <Col md="4" id="title" className="align-self-center">
             <div><h1>CURATE</h1></div>
