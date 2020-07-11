@@ -8,10 +8,10 @@ nodes = {}
 edges = []
 
 schema_key_dict = {
-    'schema': ['@id', 'super', 'name'],
-    'step': ['@id', '@type', 'aka'],
-    'slot': ['@id', 'name', 'aka', 'role', 'entityTypes'],
-    'value': ['valueId', 'value', 'entityTypes']
+    'root': ['@id', 'super', 'name', 'description', 'comment'],
+    'step': ['@id', '@type', 'aka', 'reference', 'provenance'],
+    'slot': ['@id', 'name', 'aka', 'role', 'entityTypes', 'comment', 'reference'],
+    'value': ['valueId', 'value', 'entityTypes', 'mediaType', 'confidence', 'provenance']
 }
 
 def create_node(_id, _label, _type, _shape=''):
@@ -36,6 +36,12 @@ def create_edge(_id, _source, _target, _label='', _edge_type=''):
         },
         'classes': ''
     }
+
+def extend_node(node, obj):
+    for key in obj.keys():
+        if key in schema_key_dict[node['data']['_type']]:
+            node['data'][key] = obj[key]
+    return node
 
 def handle_precondition(order, label='Precondition'):
     e = []
@@ -74,17 +80,17 @@ def get_nodes_and_edges(schema):
     edges = []
     steps_to_connect = []
     
-    nodes['root'] = create_node('root', 'Start', 'root', 'round-rectangle')
+    nodes['root'] = extend_node(create_node('root', 'Start', 'root', 'round-rectangle'), schema)
 
     for step in schema['steps']:
         _label = step['@id'].split('/')[-1].replace('_', ' ')
-        nodes[step['@id']] = create_node(step['@id'], _label, 'step', 'ellipse')
+        nodes[step['@id']] = extend_node(create_node(step['@id'], _label, 'step', 'ellipse'), step)
 
         steps_to_connect.append(step['@id'])
 
         if 'slots' in step:
             for slot in step['slots']:
-                nodes[slot['@id']] = create_node(slot['@id'], slot['name'], 'slot', 'round-pentagon')
+                nodes[slot['@id']] = extend_node(create_node(slot['@id'], slot['name'], 'slot', 'round-pentagon'), slot)
                 
                 e_id = f"{step['@id']}_{slot['@id']}"
                 edges.append(create_edge(e_id, step['@id'], slot['@id'], _edge_type='step_slot'))
@@ -177,7 +183,8 @@ def homepage():
 def upload():
     file = request.files['file']
     schema_string = file.read().decode("utf-8")
-    schema = json.loads(schema_string)['schemas'][0]
+    schemaJson = json.loads(schema_string)['schemas']
+    schema = schemaJson[0]
     global nodes
     global edges
     nodes, edges = get_nodes_and_edges(schema)
@@ -185,7 +192,8 @@ def upload():
     parsed_schema = get_connencted_nodes('root')
     return json.dumps({
         'parsedSchema': parsed_schema,
-        'name': schema['name']
+        'name': schema['name'],
+        'schemaJson': schemaJson
     })
 
 @app.route('/node', methods=['GET'])
