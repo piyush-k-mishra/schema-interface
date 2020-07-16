@@ -12,10 +12,6 @@
     text-align: center;
     margin-left: 0 !important;
 
-    .shrink {
-        height: 10vh;
-    }
-
     #logo {
         height: inherit;
         color: #ddd;
@@ -36,6 +32,10 @@
     a{
         color: white;
     }
+}
+
+.shrink {
+    height: 10vh;
 }
 
 .row {
@@ -84,6 +84,5 @@
     height: 40vh;
     margin: 3vh 5vw;
     border: solid darkslateblue 2px;
-    background-color: lavender;
     overflow-y: scroll;
 }

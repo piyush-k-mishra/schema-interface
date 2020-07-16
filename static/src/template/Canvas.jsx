@@ -5,7 +5,8 @@ import klay from 'cytoscape-klay';
 
 import axios from 'axios';
 import isNull from 'lodash/isNull';
-import isEmpty from 'lodash/isEmpty';
+import equal from 'fast-deep-equal';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 import Background from '../public/canvas_bg.png';
 import CyStyle from '../public/cy-style.json';
@@ -23,6 +24,8 @@ class Canvas extends React.Component {
         this.showSidebar = this.showSidebar.bind(this);
         this.showSubTree = this.showSubTree.bind(this);
         this.removeSubTree = this.removeSubTree.bind(this);
+        this.runLayout = this.runLayout.bind(this);
+        this.reloadCanvas = this.reloadCanvas.bind(this);
     }
 
     showSidebar(data) {
@@ -41,12 +44,7 @@ class Canvas extends React.Component {
                 }
                 this.setState({currentSubtree: res.data});
                 this.cy.add(res.data);
-                let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
-                    ready: e => {
-                        e.cy.center();
-                    }
-                }));
-                layout.run();
+                this.runLayout();
             })
             .catch(err => {
                 this.props.errorHandlerCallback(err);
@@ -61,13 +59,27 @@ class Canvas extends React.Component {
                 this.cy.remove(el);
             }
         }
+        this.runLayout();
+        this.setState({currentSubtree: null});
+    }
+
+    runLayout() {
         let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
             ready: e => {
                 e.cy.center();
             }
         }));
         layout.run();
-        this.setState({currentSubtree: null});
+    }
+
+    reloadCanvas() {
+        this.setState({
+            canvasElements: CytoscapeComponent.normalizeElements(this.props.elements),
+            currentSubtree: null
+        });
+        this.cy.elements().remove(); 
+        this.cy.add( this.state.canvasElements );
+        this.runLayout();
     }
 
     componentDidMount() {
@@ -89,24 +101,22 @@ class Canvas extends React.Component {
 
             this.cy.on('cxttap', event => {
                 this.cy.resize();
-                if (isEmpty(event.target.data())) {
-                    let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
-                        ready: e => {
-                            e.cy.center();
-                        }
-                    }));
-                    layout.run();
-                } else {
-                    let layout = this.cy.makeLayout(Object.assign({}, CyStyle.layout, {
-                        ready: e => {
-                            e.cy.center();
-                        }
-                    }));
-                    layout.run();
-                }
+                this.runLayout();
                 this.props.sidebarCallback(event.target.data());
             })
         })
+    }
+
+    componentDidUpdate(prevProps) {
+        if(!equal(this.props.elements, prevProps.elements)){
+            this.setState({
+                canvasElements: CytoscapeComponent.normalizeElements(this.props.elements),
+                currentSubtree: null
+            });
+            this.cy.elements().remove(); 
+            this.cy.add( this.state.canvasElements );
+            this.runLayout();
+        }
     }
 
     render() {
@@ -118,7 +128,7 @@ class Canvas extends React.Component {
         };
 
         return (
-            <div className={this.props.className} style={{width: 'inherit'}}>
+            <div className={this.props.className} style={{width: 'inherit', display: 'inline-flex'}}>
                 <CytoscapeComponent
                     elements={this.state.canvasElements}
                     layout={CyStyle.layout}
@@ -127,6 +137,9 @@ class Canvas extends React.Component {
                     cy={(cy) => { this.cy = cy }}
                     maxZoom={4} minZoom={0.5}
                 />
+                <div style={{'width': '0', height: '3vh'}}>
+                    <RefreshIcon type='button' color="action" fontSize='large' onClick={this.reloadCanvas}/>
+                </div>
             </div>
         );
     }

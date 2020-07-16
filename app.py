@@ -43,37 +43,41 @@ def extend_node(node, obj):
             node['data'][key] = obj[key]
     return node
 
-def handle_precondition(order, label='Precondition'):
+def handle_precondition(order, node_set, label='Precondition'):
     e = []
     if isinstance(order['before'], list):
         for before_id in order['before']:
             if isinstance(order['after'], list):
                 for after_id in order['after']:
-                    e_id = f"{before_id}_{after_id}"
-                    e.append(create_edge(e_id, before_id, after_id, label, 'step_step'))
+                    if before_id in node_set and after_id in node_set:
+                        e_id = f"{before_id}_{after_id}"
+                        e.append(create_edge(e_id, before_id, after_id, label, 'step_step'))
             else:
-                e_id = f"{before_id}_{order['after']}"
-                e.append(create_edge(e_id, before_id, order['after'], label, 'step_step'))
+                if before_id in node_set and order['after'] in node_set:
+                    e_id = f"{before_id}_{order['after']}"
+                    e.append(create_edge(e_id, before_id, order['after'], label, 'step_step'))
     else:
         if isinstance(order['after'], list):
             for after_id in order['after']:
-                e_id = f"{order['before']}_{after_id}"
-                e.append(create_edge(e_id, order['before'], after_id, label, 'step_step'))
+                if order['before'] in node_set and after_id in node_set:
+                    e_id = f"{order['before']}_{after_id}"
+                    e.append(create_edge(e_id, order['before'], after_id, label, 'step_step'))
         else:
-            e_id = f"{order['before']}_{order['after']}"
-            e.append(create_edge(e_id, order['before'], order['after'], label, 'step_step'))
+            if order['before'] in node_set and order['after'] in node_set:
+                e_id = f"{order['before']}_{order['after']}"
+                e.append(create_edge(e_id, order['before'], order['after'], label, 'step_step'))
     return e
 
-def handle_optional(_order):
+def handle_optional(_order, node_set):
     print(_order)
 
-def handle_flags(_flag, _order):
+def handle_flags(_flag, _order, node_set):
     switcher={
         'precondition': handle_precondition,
         'optional': handle_optional
     }
     func = switcher.get(_flag, lambda *args: None)
-    return func(_order)
+    return func(_order, node_set)
 
 def get_nodes_and_edges(schema):
     nodes = {}
@@ -115,9 +119,9 @@ def get_nodes_and_edges(schema):
             e = []
             
             if 'flags' in order:
-                e = handle_flags(order['flags'], order)
+                e = handle_flags(order['flags'], order, nodes)
             else:
-                e = handle_precondition(order, 'Before')
+                e = handle_precondition(order, nodes, 'Before')
                 for entry in e:
                     entry['classes'] = 'optional-before'
             
@@ -203,3 +207,19 @@ def get_subtree():
     node_id = request.args.get('ID')
     subtree = get_connencted_nodes(node_id)
     return json.dumps(subtree)
+
+@app.route('/reload', methods=['POST'])
+def reload_schema():
+    schema_string = request.data.decode("utf-8")
+    schemaJson = json.loads(schema_string)
+    schema = schemaJson[0]
+    global nodes
+    global edges
+    nodes, edges = get_nodes_and_edges(schema)
+    schema_name = schema['name']
+    parsed_schema = get_connencted_nodes('root')
+    return json.dumps({
+        'parsedSchema': parsed_schema,
+        'name': schema['name'],
+        'schemaJson': schemaJson
+    })

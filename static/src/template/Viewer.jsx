@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import RefreshIcon from '@material-ui/icons/Refresh';
 
 import UploadModal from './UploadModal';
 import Canvas from './Canvas';
@@ -25,7 +24,7 @@ class Viewer extends Component {
 
     callbackFunction(response) {
         this.setState({ 
-            schemaResponse: response.parsedSchema,
+            schemaResponse: Object.assign({}, response.parsedSchema),
             schemaName: response.name,
             schemaJson: response.schemaJson 
         });
@@ -49,17 +48,33 @@ class Viewer extends Component {
         let canvas = "";
         let schemaHeading = "";
         let jsonViewer = "";
+        let navEle = "";
         let sidebarClassName = this.state.isOpen ? "sidebar-open" : "sidebar-closed";
         let canvasClassName = this.state.isOpen ? "canvas-shrunk": "canvas-wide";
 
         if (this.state.schemaResponse !== '') {
-            schemaHeading = <h3 className="schema-name">{this.state.schemaName}</h3>
+            navEle = document.getElementsByClassName('Header')[0];
+            navEle.classList.add("shrink");
+            
+            schemaHeading = <h3 className="schema-name">
+                                {this.state.schemaName}
+                            </h3>;
+
             canvas = <Canvas id="canvas"
                 elements={this.state.schemaResponse}
                 sidebarCallback={this.sidebarCallback}
                 className={canvasClassName}
             />;
-            jsonViewer = <JsonView schemaJson={this.state.schemaJson}/>;
+            
+            jsonViewer = <JsonView 
+                schemaJson={this.state.schemaJson} 
+                parentCallback={this.callbackFunction}
+            />;
+        
+        } else {
+            if (navEle) {
+                navEle.classList.remove("shrink");
+            }
         }
 
         return (
@@ -72,9 +87,6 @@ class Viewer extends Component {
                         isOpen={this.state.isOpen} 
                         className={sidebarClassName} />
                     {canvas}
-                    <div style={{'width': '0', height: '3vh'}}>
-                        <RefreshIcon color="action" fontSize='large'/>
-                    </div>
                 </div>
                 {jsonViewer}
             </div>
