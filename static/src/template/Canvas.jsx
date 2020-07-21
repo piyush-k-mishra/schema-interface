@@ -109,13 +109,7 @@ class Canvas extends React.Component {
 
     componentDidUpdate(prevProps) {
         if(!equal(this.props.elements, prevProps.elements)){
-            this.setState({
-                canvasElements: CytoscapeComponent.normalizeElements(this.props.elements),
-                currentSubtree: null
-            });
-            this.cy.elements().remove(); 
-            this.cy.add( this.state.canvasElements );
-            this.runLayout();
+            this.reloadCanvas();
         }
     }
 

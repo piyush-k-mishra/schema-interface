@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import ReactJson from 'react-json-view';
+
 import axios from 'axios';
+import some from 'lodash/some';
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
 
 class JsonView extends Component {
     constructor(props) {
@@ -14,7 +18,9 @@ class JsonView extends Component {
     handleAdd (e) {
         if (e.new_value == "error") {
             return false;
-        } else if (e.new_value.indexOf(null) > -1) {
+        } else if (isArray(e.new_value) && some(e.new_value, null)) {
+            return true;
+        } else if (isObject(e.new_value) && some(Object.values(e.new_value), null)) {
             return true;
         } else {
             axios.post("/reload", e.updated_src)
@@ -61,9 +67,9 @@ class JsonView extends Component {
 
     render () {
         const style = {
-            padding: "30px", 
+            padding: "15px", 
             backgroundColor: "white", 
-            fontSize: "15px"
+            fontSize: "14px"
         }
         return (
             <div id="schema-json">
@@ -73,12 +79,12 @@ class JsonView extends Component {
                     style={style}
                     src={this.props.schemaJson}
                     collapsed={2}
-                    collapseStringsAfterLength={100}
                     displayDataTypes={false}
-                    onEdit={this.handleEdit}
-                    onDelete={this.handleDelete}
-                    onAdd={this.handleAdd}
                     displayObjectSize={true}
+                    indentWidth={2}
+                    onAdd={this.handleAdd}
+                    onDelete={this.handleDelete}
+                    onEdit={this.handleEdit}
                 />
             </div>
         )

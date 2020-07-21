@@ -52,13 +52,13 @@
 }
 
 .canvas-shrunk {
-    margin-left: 2vw;
-    width: 75vw !important;
+    margin: 0 2vw;
+    width: 52vw !important;
 }
 
 .canvas-wide {
-    margin-left: 10vw;
-    width: 90vw !important;
+    margin: 0 2vw;
+    width: 67vw !important;
 }
 
 .sidebar-open {
@@ -72,17 +72,17 @@
 }
 
 .sidebar-closed {
-    width: 15vw;
+    width: 0;
     height: 100%;
     transition: left .3s ease-in-out;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    margin-left: -20vw;
+    border: 0;
+    margin: 0;
 }
 
 #schema-json {
-    width: 90vw;
-    height: 40vh;
-    margin: 3vh 5vw;
+    width: 25vw;
+    height: 75vh;
+    margin: 0 2vw;
     border: solid darkslateblue 2px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }

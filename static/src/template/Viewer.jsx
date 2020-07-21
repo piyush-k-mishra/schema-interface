@@ -56,7 +56,7 @@ class Viewer extends Component {
             navEle = document.getElementsByClassName('Header')[0];
             navEle.classList.add("shrink");
             
-            schemaHeading = <h3 className="schema-name">
+            schemaHeading = <h3 className="schema-name col-md-8" style={{textAlign: 'center'}}>
                                 {this.state.schemaName}
                             </h3>;
 
@@ -80,15 +80,15 @@ class Viewer extends Component {
         return (
             <div id="viewer">
                 <UploadModal buttonLabel="Upload Schema" parentCallback={this.callbackFunction} />
-                {schemaHeading}
+                <div className="row">{schemaHeading}</div>
                 <div style={{display: 'inline-flex'}}>
                     <SideBar
                         data={this.state.nodeData}
                         isOpen={this.state.isOpen} 
                         className={sidebarClassName} />
                     {canvas}
+                    {jsonViewer}
                 </div>
-                {jsonViewer}
             </div>
         )
     }

@@ -69,7 +69,7 @@ def handle_precondition(order, node_set, label='Precondition'):
     return e
 
 def handle_optional(_order, node_set):
-    print(_order)
+    return handle_precondition(_order, node_set, 'Optional')
 
 def handle_flags(_flag, _order, node_set):
     switcher={
@@ -92,14 +92,14 @@ def get_nodes_and_edges(schema):
 
         steps_to_connect.append(step['@id'])
 
-        if 'slots' in step:
+        if 'slots' in step and isinstance(step['slots'], list):
             for slot in step['slots']:
                 nodes[slot['@id']] = extend_node(create_node(slot['@id'], slot['name'], 'slot', 'round-pentagon'), slot)
                 
                 e_id = f"{step['@id']}_{slot['@id']}"
                 edges.append(create_edge(e_id, step['@id'], slot['@id'], _edge_type='step_slot'))
 
-                if 'values' in slot:
+                if 'values' in slot and isinstance(slot['values'], list):
                     for value in slot['values']:
                         nodes[value['valueId']] = create_node(value['valueId'], value['value'], 'value', 'round-diamond')
 
