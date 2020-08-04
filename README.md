@@ -24,6 +24,8 @@ Subsequent runs:
 * cd path/to/project/schema-interface
 * sh run_local.sh
 
+Once the server has started, run the localhost with the port mentioned in the terminal in the browser. The tool will render.
+
 ## Libraries
 
 The tool mainly uses 3 resources:
