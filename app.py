@@ -124,7 +124,6 @@ def get_nodes_and_edges(schema):
                 e = handle_precondition(order, nodes, 'Before')
                 for entry in e:
                     entry['classes'] = 'optional-before'
-            
             edges.extend(e)
             
             if isinstance(order['after'], list):
@@ -134,6 +133,17 @@ def get_nodes_and_edges(schema):
             else:
                 if order['after'] in steps_to_connect:
                         steps_to_connect.remove(order['after'])
+
+    if 'entityRelations' in schema and isinstance(schema['entityRelations'], list):
+        for entityRelation in schema['entityRelations']:
+            subject = entityRelation['relationSubject']
+            for relation in entityRelation['relations']:
+                predicate = relation['relationPredicate'].split('/')[1]
+                rel_object = relation['relationObject'] if isinstance(relation['relationObject'], list) else [relation['relationObject']]
+                for obj in rel_object:
+                    edges.append(create_edge(f"{subject}_{obj}", subject, obj, predicate, 'slot_slot'))
+                    if obj not in nodes:
+                        nodes[obj] = create_node(obj, obj, 'slot', 'round-pentagon')
 
     for step in steps_to_connect:
         e = create_edge(f"root_{step}", 'root', step, _edge_type='root_step')
@@ -146,7 +156,7 @@ def get_connencted_nodes(selected_node):
     n = []
     e = []
     id_set = set()
-
+    
     if selected_node == 'root':
         n.append(nodes[selected_node])
         for key, node in nodes.items():
@@ -157,7 +167,7 @@ def get_connencted_nodes(selected_node):
                 e.append(edge)
     else:
         for edge in edges:
-            if edge['data']['source'] == selected_node and edge not in e:
+            if (edge['data']['source'] == selected_node or edge['data']['target'] == selected_node) and edge not in e:
                 e.append(edge)
                 node = nodes[edge['data']['target']]
                 if node['data']['_type'] == 'slot':

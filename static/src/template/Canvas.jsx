@@ -47,7 +47,7 @@ class Canvas extends React.Component {
                 this.runLayout();
             })
             .catch(err => {
-                this.props.errorHandlerCallback(err);
+                console.error(err);
             })
     }
 
@@ -87,7 +87,7 @@ class Canvas extends React.Component {
             this.cy.on('tap', event => {
                 if (event.target.group && event.target.group() === 'nodes') {
                     let node = event.target.data();
-                    if (node.id === 'root') {
+                    if (node._type !== 'step') {
                         this.cy.getElementById(node.id).unselect();
                     } else {
                         this.showSubTree(node);
@@ -100,8 +100,10 @@ class Canvas extends React.Component {
             })
 
             this.cy.on('cxttap', event => {
-                this.cy.resize();
-                this.runLayout();
+                if (Object.keys(event.target.data()).length === 0) {
+                    this.cy.resize();
+                    this.runLayout();
+                }
                 this.props.sidebarCallback(event.target.data());
             })
         })
